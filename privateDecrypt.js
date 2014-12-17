@@ -15,7 +15,7 @@ module.exports = function (crypto) {
     
     var key = parseKeys(private_key, crypto);
     var k = key.modulus.byteLength();
-    if (enc.length !== k) {
+    if (enc.length > k || new bn(enc).cmp(key.modulus) >= 0) {
       throw new Error('decryption error');
     }
     var msg = crt(enc, key);

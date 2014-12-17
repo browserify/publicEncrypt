@@ -33,10 +33,10 @@ var pass1024 = {
 
 var nodeCrypto = require('crypto');
 var myCrypto = require('../');
-function _testIt(keys, message) {
+function _testIt(keys, message, t) {
 	var pub = keys.public;
 	var priv = keys.private;
-	test(message.toString(), function (t) {
+	t.test(message.toString(), function (t) {
 		t.plan(4);
 		var myEnc = myCrypto.publicEncrypt(pub, message);
 		var nodeEnc = nodeCrypto.publicEncrypt(pub, message);
@@ -46,15 +46,15 @@ function _testIt(keys, message) {
 		t.equals(nodeCrypto.privateDecrypt(priv, nodeEnc).toString('hex'), message.toString('hex'), 'node decrypter node\'s message');
 	});
 }
-function testIt(keys, message) {
-	_testIt(keys, message);
-	_testIt(paddingObject(keys, constants.RSA_PKCS1_PADDING), Buffer.concat([message, new Buffer(' with RSA_PKCS1_PADDING')]));
+function testIt(keys, message, t) {
+	_testIt(keys, message, t);
+	_testIt(paddingObject(keys, constants.RSA_PKCS1_PADDING), Buffer.concat([message, new Buffer(' with RSA_PKCS1_PADDING')]), t);
 	var parsedKey = parseKeys(keys.public);
 	var k = parsedKey.modulus.byteLength();
 	var zBuf = new Buffer(k);
 	zBuf.fill(0);
 	var msg = Buffer.concat([zBuf, message, new Buffer(' with no padding')]).slice(-k);
-	_testIt(paddingObject(keys, constants.RSA_NO_PADDING), msg);
+	_testIt(paddingObject(keys, constants.RSA_NO_PADDING), msg, t);
 }
 function paddingObject(keys, padding) {
 	return {
@@ -78,8 +78,17 @@ function addPadding(key, padding) {
 	}
 	return out;
 }
-testIt(rsa1024, new Buffer('1024 keys'));
-testIt(rsa2028, new Buffer('2028 keys'));
-testIt(nonrsa1024, new Buffer('1024 keys non-rsa key'));
-testIt(pass1024, new Buffer('1024 keys and password'));
-testIt(nonrsa1024str, new Buffer('1024 keys non-rsa key as a string'));
+function testRun(i) {
+	test('run ' + i, function (t) {
+		testIt(rsa1024, new Buffer('1024 keys'), t);
+		testIt(rsa2028, new Buffer('2028 keys'), t);
+		testIt(nonrsa1024, new Buffer('1024 keys non-rsa key'), t);
+		testIt(pass1024, new Buffer('1024 keys and password'), t);
+		testIt(nonrsa1024str, new Buffer('1024 keys non-rsa key as a string'), t);
+	});
+}
+var i = 0;
+var num = 20;
+while (++i <= 20) {
+	testRun(i);
+}
