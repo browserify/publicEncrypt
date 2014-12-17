@@ -54,6 +54,7 @@ function crt(msg, priv, crypto) {
   m2.iadd(h);
   return new Buffer(m2.toRed(mod).redIMul(blinds.unblinder.toRed(mod)).fromRed().toArray());
 }
+// based on https://github.com/google/end-to-end/blob/bd14d9607e742cd94b1a5af39e0f9e8c454b4a32/src/javascript/crypto/e2e/asymmetric/rsa.js#L196
 function blind(priv, crypto) {
   var mod = bn.mont(priv.modulus);
   var r = getr(priv, crypto);
