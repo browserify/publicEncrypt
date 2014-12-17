@@ -18,7 +18,7 @@ module.exports = function (crypto) {
     if (enc.length > k || new bn(enc).cmp(key.modulus) >= 0) {
       throw new Error('decryption error');
     }
-    var msg = crt(enc, key);
+    var msg = crt(enc, key, crypto);
     var zBuffer = new Buffer(k - msg.length);
     zBuffer.fill(0);
     msg = Buffer.concat([zBuffer, msg], k);
@@ -33,12 +33,18 @@ module.exports = function (crypto) {
     }
   }
 };
-function crt(msg, priv) {
-  var c1 = new bn(msg).toRed(bn.mont(priv.prime1));
-  var c2 = new bn(msg).toRed(bn.mont(priv.prime2));
-  var qinv = new bn(priv.coefficient);
-  var p = new bn(priv.prime1);
-  var q = new bn(priv.prime2);
+function crt(msg, priv, crypto) {
+  var blinds = blind(priv, crypto);
+  var mod = bn.mont(priv.modulus);
+  var blinded = new bn(msg)
+  .toRed(mod)
+  .redIMul(blinds.blinder.toRed(mod))
+  .fromRed();
+  var c1 = blinded.toRed(bn.mont(priv.prime1));
+  var c2 = blinded.toRed(bn.mont(priv.prime2));
+  var qinv = priv.coefficient;
+  var p = priv.prime1;
+  var q = priv.prime2;
   var m1 = c1.redPow(priv.exponent1);
   var m2 = c2.redPow(priv.exponent2);
   m1 = m1.fromRed();
@@ -46,7 +52,36 @@ function crt(msg, priv) {
   var h = m1.isub(m2).imul(qinv).mod(p);
   h.imul(q);
   m2.iadd(h);
-  return new Buffer(m2.toArray());
+  return new Buffer(m2.toRed(mod).redIMul(blinds.unblinder.toRed(mod)).fromRed().toArray());
+}
+function blind(priv, crypto) {
+  var mod = bn.mont(priv.modulus);
+  var r = getr(priv, crypto);
+  var p = priv.prime1;
+  var q = priv.prime2;
+  var ONE = new bn(1);
+  var phi = ONE.toRed(mod)
+    .redSub(p.toRed(mod))
+    .redISub(q.toRed(mod))
+    .fromRed()
+    .isub(ONE);
+  var blinder = r.toRed(mod)
+  .redPow(phi)
+  .redPow(new bn(priv.publicExponent)).fromRed();
+  _blinder = blinder;
+  _unblinder = r;
+  return {
+    blinder: blinder,
+    unblinder:r
+  };
+}
+function getr(priv, crypto) {
+  var len = priv.modulus.byteLength();
+  var r = new bn(crypto.randomBytes(len));
+  while (r.cmp(priv.modulus) >= 0) {
+    r = new bn(crypto.randomBytes(len));
+  }
+  return r;
 }
 function oaep(key, msg, crypto){
   var n = key.modulus;
