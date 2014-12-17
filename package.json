@@ -1,7 +1,7 @@
 {
-  "name": "publicEncrypt",
+  "name": "public-encrypt",
   "version": "1.0.0",
-  "description": "",
+  "description": "browserify version of publicEncrypt & privateDecrypt",
   "main": "index.js",
   "directories": {
     "test": "test"
