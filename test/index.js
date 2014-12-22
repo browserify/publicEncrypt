@@ -30,6 +30,13 @@ var pass1024 = {
 	},
 	public: fs.readFileSync(__dirname + '/pass.1024.pub')
 };
+var pass2028 = {
+	private: {
+		passphrase: 'password',
+		key:fs.readFileSync(__dirname + '/rsa.pass.priv')
+	},
+	public: fs.readFileSync(__dirname + '/rsa.pass.pub')
+};
 
 var nodeCrypto = require('crypto');
 var myCrypto = require('../');
@@ -85,6 +92,7 @@ function testRun(i) {
 		testIt(nonrsa1024, new Buffer('1024 keys non-rsa key'), t);
 		testIt(pass1024, new Buffer('1024 keys and password'), t);
 		testIt(nonrsa1024str, new Buffer('1024 keys non-rsa key as a string'), t);
+		testIt(pass2028, new Buffer('2028 rsa key with variant passwords'), t);
 	});
 }
 var i = 0;
