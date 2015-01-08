@@ -7,6 +7,10 @@ var rsa1024 = {
 	private: fs.readFileSync(__dirname + '/rsa.1024.priv'),
 	public: fs.readFileSync(__dirname + '/rsa.1024.pub')
 };
+var rsa1024priv = {
+	private: fs.readFileSync(__dirname + '/rsa.1024.priv'),
+	public: fs.readFileSync(__dirname + '/rsa.1024.priv')
+};
 var rsa1024 = {
 	private: fs.readFileSync(__dirname + '/rsa.1024.priv'),
 	public: fs.readFileSync(__dirname + '/rsa.1024.pub')
@@ -87,6 +91,7 @@ function addPadding(key, padding) {
 }
 function testRun(i) {
 	test('run ' + i, function (t) {
+		testIt(rsa1024priv, new Buffer('1024 2 private keys'), t);
 		testIt(rsa1024, new Buffer('1024 keys'), t);
 		testIt(rsa2028, new Buffer('2028 keys'), t);
 		testIt(nonrsa1024, new Buffer('1024 keys non-rsa key'), t);
