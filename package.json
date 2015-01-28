@@ -3,6 +3,7 @@
   "version": "1.1.2",
   "description": "browserify version of publicEncrypt & privateDecrypt",
   "main": "index.js",
+  "browser": "browser.js",
   "directories": {
     "test": "test"
   },
@@ -21,8 +22,9 @@
   "homepage": "https://github.com/calvinmetcalf/publicEncrypt",
   "dependencies": {
     "bn.js": "^1.0.0",
-    "browserify-rsa": "^1.1.0",
-    "parse-asn1": "^2.0.0"
+    "browserify-rsa": "^1.2.0",
+    "create-hash": "^1.1.0",
+    "parse-asn1": "^3.0.0"
   },
   "devDependencies": {
     "tape": "^3.0.3",

@@ -42,8 +42,8 @@ var pass2028 = {
 	public: fs.readFileSync(__dirname + '/rsa.pass.pub')
 };
 
-var nodeCrypto = require('crypto');
-var myCrypto = require('../');
+var nodeCrypto = require('../');
+var myCrypto = require('../browser');
 function _testIt(keys, message, t) {
 	var pub = keys.public;
 	var priv = keys.private;
