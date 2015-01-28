@@ -59,13 +59,13 @@ function _testIt(keys, message, t) {
 }
 function testIt(keys, message, t) {
 	_testIt(keys, message, t);
-	_testIt(paddingObject(keys, constants.RSA_PKCS1_PADDING), Buffer.concat([message, new Buffer(' with RSA_PKCS1_PADDING')]), t);
+	_testIt(paddingObject(keys, 1), Buffer.concat([message, new Buffer(' with RSA_PKCS1_PADDING')]), t);
 	var parsedKey = parseKeys(keys.public);
 	var k = parsedKey.modulus.byteLength();
 	var zBuf = new Buffer(k);
 	zBuf.fill(0);
 	var msg = Buffer.concat([zBuf, message, new Buffer(' with no padding')]).slice(-k);
-	_testIt(paddingObject(keys, constants.RSA_NO_PADDING), msg, t);
+	_testIt(paddingObject(keys, 3), msg, t);
 }
 function paddingObject(keys, padding) {
 	return {
