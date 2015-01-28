@@ -24,7 +24,8 @@
     "bn.js": "^1.0.0",
     "browserify-rsa": "^2.0.0",
     "create-hash": "^1.1.0",
-    "parse-asn1": "^3.0.0"
+    "parse-asn1": "^3.0.0",
+    "randombytes": "^2.0.1"
   },
   "devDependencies": {
     "tape": "^3.0.3",
