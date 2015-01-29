@@ -4,16 +4,21 @@ var createHash = require('create-hash');
 var mgf = require('./mgf');
 var xor = require('./xor');
 var bn = require('bn.js');
+var withPublic = require('./withPublic');
+var crt = require('browserify-rsa');
+
 var constants = {
   RSA_PKCS1_OAEP_PADDING: 4,
   RSA_PKCS1_PADDIN: 1,
   RSA_NO_PADDING: 3
 };
 
-module.exports = function publicEncrypt(public_key, msg) {
+module.exports = function publicEncrypt(public_key, msg, reverse) {
   var padding;
   if (public_key.padding) {
     padding = public_key.padding;
+  } else if (reverse) {
+    padding = 1;
   } else {
     padding = 4;
   }
@@ -22,7 +27,7 @@ module.exports = function publicEncrypt(public_key, msg) {
   if (padding === 4) {
     paddedMsg = oaep(key, msg);
   } else if (padding === 1) {
-    paddedMsg = pkcs1(key, msg);
+    paddedMsg = pkcs1(key, msg, reverse);
   } else if (padding === 3) {
     paddedMsg = new bn(msg);
     if (paddedMsg.cmp(key.modulus) >= 0) {
@@ -31,12 +36,11 @@ module.exports = function publicEncrypt(public_key, msg) {
   } else {
     throw new Error('unknown padding');
   }
-  var enc = paddedMsg
-    .toRed(bn.mont(key.modulus))
-    .redPow(new bn(key.publicExponent))
-    .fromRed()
-    .toArray();
-  return new Buffer(enc);
+  if (reverse) {
+    return crt(paddedMsg, key);
+  } else {
+    return withPublic(paddedMsg, key);
+  }
 };
 
 function oaep(key, msg){
@@ -56,14 +60,20 @@ function oaep(key, msg){
   var maskedSeed = xor(seed, mgf(maskedDb, hLen));
   return new bn(Buffer.concat([new Buffer([0]), maskedSeed, maskedDb], k));
 }
-function pkcs1(key, msg){
+function pkcs1(key, msg, reverse){
   var mLen = msg.length;
   var k = key.modulus.byteLength();
   if (mLen > k - 11) {
     throw new Error('message too long');
   }
-  var ps = nonZero(k - mLen - 3);
-  return new bn(Buffer.concat([new Buffer([0, 2]), ps, new Buffer([0]), msg], k));
+  var ps;
+  if (reverse) {
+    ps = new Buffer(k - mLen - 3);
+    ps.fill(0xff);
+  } else {
+    ps = nonZero(k - mLen - 3);
+  }
+  return new bn(Buffer.concat([new Buffer([0, reverse?1:2]), ps, new Buffer([0]), msg], k));
 }
 function nonZero(len, crypto) {
   var out = new Buffer(len);

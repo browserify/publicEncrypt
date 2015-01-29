@@ -4,11 +4,13 @@ var xor = require('./xor');
 var bn = require('bn.js');
 var crt = require('browserify-rsa');
 var createHash = require('create-hash');
-
-module.exports = function privateDecrypt(private_key, enc) {
+var withPublic = require('./withPublic');
+module.exports = function privateDecrypt(private_key, enc, reverse) {
   var padding;
   if (private_key.padding) {
     padding = private_key.padding;
+  } else if (reverse) {
+    padding = 1;
   } else {
     padding = 4;
   }
@@ -18,14 +20,19 @@ module.exports = function privateDecrypt(private_key, enc) {
   if (enc.length > k || new bn(enc).cmp(key.modulus) >= 0) {
     throw new Error('decryption error');
   }
-  var msg = crt(enc, key);
+  var msg;
+  if (reverse) {
+    msg = withPublic(new bn(enc), key);
+  } else {
+    msg = crt(enc, key);
+  }
   var zBuffer = new Buffer(k - msg.length);
   zBuffer.fill(0);
   msg = Buffer.concat([zBuffer, msg], k);
   if (padding === 4) {
     return oaep(key, msg);
   } else if (padding === 1) {
-    return pkcs1(key, msg);
+    return pkcs1(key, msg, reverse);
   } else if (padding === 3) {
     return msg;
   } else {
@@ -60,7 +67,7 @@ function oaep(key, msg){
   return db.slice(i);
 }
 
-function pkcs1(key, msg){
+function pkcs1(key, msg, reverse){
   var p1 = msg.slice(0, 2);
   var i = 2;
   var status = 0;
@@ -73,11 +80,14 @@ function pkcs1(key, msg){
   var ps = msg.slice(2, i - 1);
   var p2 = msg.slice(i - 1, i);
 
-  if (p1.toString('hex') !== '0002') {
+  if ((p1.toString('hex') !== '0002' && !reverse) || (p1.toString('hex') !== '0001' && reverse)){
     status++;
   }
   if (ps.length < 8) {
     status++;
+  }
+  if (status) {
+    throw new Error('decryption error');
   }
   return  msg.slice(i);
 }
