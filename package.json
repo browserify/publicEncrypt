@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/calvinmetcalf/publicEncrypt.git"
+    "url": "https://github.com/crypto-browserify/publicEncrypt.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/calvinmetcalf/publicEncrypt/issues"
+    "url": "https://github.com/crypto-browserify/publicEncrypt/issues"
   },
-  "homepage": "https://github.com/calvinmetcalf/publicEncrypt",
+  "homepage": "https://github.com/crypto-browserify/publicEncrypt",
   "dependencies": {
     "bn.js": "^1.0.0",
     "browserify-rsa": "^2.0.0",
