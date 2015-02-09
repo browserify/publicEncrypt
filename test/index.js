@@ -2,6 +2,7 @@ var test = require('tape');
 var fs = require('fs');
 var constants = require('constants');
 var parseKeys = require('parse-asn1');
+require('./nodeTests');
 var priv1024 = fs.readFileSync(__dirname + '/rsa.1024.priv');
 var rsa1024 = {
 	private: fs.readFileSync(__dirname + '/rsa.1024.priv'),
@@ -48,7 +49,7 @@ function _testIt(keys, message, t) {
 	var pub = keys.public;
 	var priv = keys.private;
 	t.test(message.toString(), function (t) {
-		t.plan(4);
+		t.plan(8);
 
 		var myEnc = myCrypto.publicEncrypt(pub, message);
 		var nodeEnc = nodeCrypto.publicEncrypt(pub, message);
@@ -56,7 +57,14 @@ function _testIt(keys, message, t) {
 		t.equals(myCrypto.privateDecrypt(priv, nodeEnc).toString('hex'), message.toString('hex'), 'my decrypter node\'s message');
 		t.equals(nodeCrypto.privateDecrypt(priv, myEnc).toString('hex'), message.toString('hex'), 'node decrypter my message');
 		t.equals(nodeCrypto.privateDecrypt(priv, nodeEnc).toString('hex'), message.toString('hex'), 'node decrypter node\'s message');
-	});
+    myEnc = myCrypto.privateEncrypt(priv, message);
+    nodeEnc = nodeCrypto.privateEncrypt(priv, message);
+    t.equals(myCrypto.publicDecrypt(pub, myEnc).toString('hex'), message.toString('hex'), 'reverse methods my decrypter my message');
+    t.equals(myCrypto.publicDecrypt(pub, nodeEnc).toString('hex'), message.toString('hex'), 'reverse methods my decrypter node\'s message');
+    t.equals(nodeCrypto.publicDecrypt(pub, myEnc).toString('hex'), message.toString('hex'), 'reverse methods node decrypter my message');
+    t.equals(nodeCrypto.publicDecrypt(pub, nodeEnc).toString('hex'), message.toString('hex'), 'reverse methods node decrypter node\'s message');
+
+  });
 }
 function testIt(keys, message, t) {
 	_testIt(keys, message, t);
@@ -101,55 +109,6 @@ function testRun(i) {
 		testIt(pass2028, new Buffer('2028 rsa key with variant passwords'), t);
 	});
 }
-
-
-// Test RSA encryption/decryption
-test('node tests', function (t) {
-	var certPem = fs.readFileSync(__dirname + '/test_cert.pem', 'ascii');
-	var keyPem = fs.readFileSync(__dirname + '/test_key.pem', 'ascii');
-	var rsaPubPem = fs.readFileSync(__dirname + '/test_rsa_pubkey.pem',
-	    'ascii');
-	var rsaKeyPem = fs.readFileSync(__dirname + '/test_rsa_privkey.pem',
-	    'ascii');
-	var rsaKeyPemEncrypted = fs.readFileSync(
-  __dirname + '/test_rsa_privkey_encrypted.pem', 'ascii');
-  var input = 'I AM THE WALRUS';
-  var bufferToEncrypt = new Buffer(input);
-
-  var encryptedBuffer = myCrypto.publicEncrypt(rsaPubPem, bufferToEncrypt);
-
-  var decryptedBuffer = myCrypto.privateDecrypt(rsaKeyPem, encryptedBuffer);
-  t.equal(input, decryptedBuffer.toString());
-
-  var decryptedBufferWithPassword = myCrypto.privateDecrypt({
-    key: rsaKeyPemEncrypted,
-    passphrase: 'password'
-  }, encryptedBuffer);
-  t.equal(input, decryptedBufferWithPassword.toString());
-
-  // encryptedBuffer = myCrypto.publicEncrypt(certPem, bufferToEncrypt);
-
-  // decryptedBuffer = myCrypto.privateDecrypt(keyPem, encryptedBuffer);
-  // t.equal(input, decryptedBuffer.toString());
-
-  encryptedBuffer = myCrypto.publicEncrypt(keyPem, bufferToEncrypt);
-
-  decryptedBuffer = myCrypto.privateDecrypt(keyPem, encryptedBuffer);
-  t.equal(input, decryptedBuffer.toString());
-
-  encryptedBuffer = myCrypto.privateEncrypt(keyPem, bufferToEncrypt);
-
-  decryptedBuffer = myCrypto.publicDecrypt(keyPem, encryptedBuffer);
-  t.equal(input, decryptedBuffer.toString());
-
-  t.throws(function() {
-    myCrypto.privateDecrypt({
-      key: rsaKeyPemEncrypted,
-      passphrase: 'wrong'
-    }, encryptedBuffer);
-  });
-  t.end();
-});
 
 var i = 0;
 var num = 20;

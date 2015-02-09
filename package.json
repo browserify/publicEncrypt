@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node test/index.js | tspec"
+    "test": "../io.js/iojs test/index.js | tspec"
   },
   "repository": {
     "type": "git",

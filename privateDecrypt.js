@@ -92,6 +92,8 @@ function pkcs1(key, msg, reverse){
   return  msg.slice(i);
 }
 function compare(a, b){
+  a = new Buffer(a);
+  b = new Buffer(b);
   var dif = 0;
   var len = a.length;
   if (a.length !== b.length) {
