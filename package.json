@@ -14,7 +14,7 @@
     "type": "git",
     "url": "https://github.com/crypto-browserify/publicEncrypt.git"
   },
-  "author": "",
+  "author": "Calvin Metcalf",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/crypto-browserify/publicEncrypt/issues"
