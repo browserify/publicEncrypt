@@ -1,6 +1,6 @@
 {
   "name": "public-encrypt",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "browserify version of publicEncrypt & privateDecrypt",
   "main": "index.js",
   "browser": "browser.js",
@@ -14,7 +14,7 @@
     "type": "git",
     "url": "https://github.com/crypto-browserify/publicEncrypt.git"
   },
-  "author": "",
+  "author": "Calvin Metcalf",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/crypto-browserify/publicEncrypt/issues"
