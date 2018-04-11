@@ -1,6 +1,6 @@
 {
   "name": "public-encrypt",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "browserify version of publicEncrypt & privateDecrypt",
   "main": "index.js",
   "browser": "browser.js",
