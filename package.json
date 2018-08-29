@@ -8,7 +8,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node test/index.js | tspec"
+    "test": "node test/index.js | tspec",
+    "lint": "standard"
   },
   "repository": {
     "type": "git",
@@ -29,7 +30,8 @@
     "safe-buffer": "^5.1.2"
   },
   "devDependencies": {
-    "tape": "^3.0.3",
-    "tap-spec": "^2.1.2"
+    "standard": "^12.0.0",
+    "tap-spec": "^2.1.2",
+    "tape": "^3.0.3"
   }
 }
