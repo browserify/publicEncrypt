@@ -5,6 +5,8 @@ var bn = require('bn.js');
 var crt = require('browserify-rsa');
 var createHash = require('create-hash');
 var withPublic = require('./withPublic');
+var Buffer = require('safe-buffer').Buffer;
+
 module.exports = function privateDecrypt(private_key, enc, reverse) {
   var padding;
   if (private_key.padding) {
@@ -14,7 +16,7 @@ module.exports = function privateDecrypt(private_key, enc, reverse) {
   } else {
     padding = 4;
   }
-  
+
   var key = parseKeys(private_key);
   var k = key.modulus.byteLength();
   if (enc.length > k || new bn(enc).cmp(key.modulus) >= 0) {
@@ -26,8 +28,7 @@ module.exports = function privateDecrypt(private_key, enc, reverse) {
   } else {
     msg = crt(enc, key);
   }
-  var zBuffer = new Buffer(k - msg.length);
-  zBuffer.fill(0);
+  var zBuffer = Buffer.alloc(k - msg.length);
   msg = Buffer.concat([zBuffer, msg], k);
   if (padding === 4) {
     return oaep(key, msg);
@@ -44,7 +45,7 @@ function oaep(key, msg){
   var n = key.modulus;
   var k = key.modulus.byteLength();
   var mLen = msg.length;
-  var iHash = createHash('sha1').update(new Buffer('')).digest();
+  var iHash = createHash('sha1').update(Buffer.alloc(0)).digest();
   var hLen = iHash.length;
   var hLen2 = 2 * hLen;
   if (msg[0] !== 0) {
@@ -92,8 +93,8 @@ function pkcs1(key, msg, reverse){
   return  msg.slice(i);
 }
 function compare(a, b){
-  a = new Buffer(a);
-  b = new Buffer(b);
+  a = Buffer.from(a);
+  b = Buffer.from(b);
   var dif = 0;
   var len = a.length;
   if (a.length !== b.length) {

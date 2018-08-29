@@ -1,6 +1,8 @@
 var createHash = require('create-hash');
+var Buffer = require('safe-buffer').Buffer;
+
 module.exports = function (seed, len) {
-  var t = new Buffer('');
+  var t = Buffer.alloc(0);
   var  i = 0, c;
   while (t.length < len) {
     c = i2ops(i++);
@@ -10,7 +12,7 @@ module.exports = function (seed, len) {
 };
 
 function i2ops(c) {
-  var out = new Buffer(4);
+  var out = Buffer.allocUnsafe(4);
   out.writeUInt32BE(c,0);
   return out;
 }

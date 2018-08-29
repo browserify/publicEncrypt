@@ -2,6 +2,8 @@ var test = require('tape');
 var fs = require('fs');
 var constants = require('constants');
 var parseKeys = require('parse-asn1');
+var Buffer = require('safe-buffer').Buffer;
+
 require('./nodeTests');
 var priv1024 = fs.readFileSync(__dirname + '/rsa.1024.priv');
 var rsa1024 = {
@@ -68,12 +70,11 @@ function _testIt(keys, message, t) {
 }
 function testIt(keys, message, t) {
   _testIt(keys, message, t);
-  _testIt(paddingObject(keys, 1), Buffer.concat([message, new Buffer(' with RSA_PKCS1_PADDING')]), t);
+  _testIt(paddingObject(keys, 1), Buffer.concat([message, Buffer.from(' with RSA_PKCS1_PADDING')]), t);
   var parsedKey = parseKeys(keys.public);
   var k = parsedKey.modulus.byteLength();
-  var zBuf = new Buffer(k);
-  zBuf.fill(0);
-  var msg = Buffer.concat([zBuf, message, new Buffer(' with no padding')]).slice(-k);
+  var zBuf = Buffer.alloc(k);
+  var msg = Buffer.concat([zBuf, message, Buffer.from(' with no padding')]).slice(-k);
   _testIt(paddingObject(keys, 3), msg, t);
 }
 function paddingObject(keys, padding) {
@@ -100,13 +101,13 @@ function addPadding(key, padding) {
 }
 function testRun(i) {
   test('run ' + i, function (t) {
-    testIt(rsa1024priv, new Buffer('1024 2 private keys'), t);
-    testIt(rsa1024, new Buffer('1024 keys'), t);
-    testIt(rsa2028, new Buffer('2028 keys'), t);
-    testIt(nonrsa1024, new Buffer('1024 keys non-rsa key'), t);
-    testIt(pass1024, new Buffer('1024 keys and password'), t);
-    testIt(nonrsa1024str, new Buffer('1024 keys non-rsa key as a string'), t);
-    testIt(pass2028, new Buffer('2028 rsa key with variant passwords'), t);
+    testIt(rsa1024priv, Buffer.from('1024 2 private keys'), t);
+    testIt(rsa1024, Buffer.from('1024 keys'), t);
+    testIt(rsa2028, Buffer.from('2028 keys'), t);
+    testIt(nonrsa1024, Buffer.from('1024 keys non-rsa key'), t);
+    testIt(pass1024, Buffer.from('1024 keys and password'), t);
+    testIt(nonrsa1024str, Buffer.from('1024 keys non-rsa key as a string'), t);
+    testIt(pass2028, Buffer.from('2028 rsa key with variant passwords'), t);
   });
 }
 

@@ -6,6 +6,7 @@ var xor = require('./xor');
 var bn = require('bn.js');
 var withPublic = require('./withPublic');
 var crt = require('browserify-rsa');
+var Buffer = require('safe-buffer').Buffer;
 
 var constants = {
   RSA_PKCS1_OAEP_PADDING: 4,
@@ -46,19 +47,18 @@ module.exports = function publicEncrypt(public_key, msg, reverse) {
 function oaep(key, msg){
   var k = key.modulus.byteLength();
   var mLen = msg.length;
-  var iHash = createHash('sha1').update(new Buffer('')).digest();
+  var iHash = createHash('sha1').update(Buffer.alloc(0)).digest();
   var hLen = iHash.length;
   var hLen2 = 2 * hLen;
   if (mLen > k - hLen2 - 2) {
     throw new Error('message too long');
   }
-  var ps = new Buffer(k - mLen - hLen2 - 2);
-  ps.fill(0);
+  var ps = Buffer.alloc(k - mLen - hLen2 - 2);
   var dblen = k - hLen - 1;
   var seed = randomBytes(hLen);
-  var maskedDb = xor(Buffer.concat([iHash, ps, new Buffer([1]), msg], dblen), mgf(seed, dblen));
+  var maskedDb = xor(Buffer.concat([iHash, ps, Buffer.alloc(1, 1), msg], dblen), mgf(seed, dblen));
   var maskedSeed = xor(seed, mgf(maskedDb, hLen));
-  return new bn(Buffer.concat([new Buffer([0]), maskedSeed, maskedDb], k));
+  return new bn(Buffer.concat([Buffer.alloc(1), maskedSeed, maskedDb], k));
 }
 function pkcs1(key, msg, reverse){
   var mLen = msg.length;
@@ -73,10 +73,10 @@ function pkcs1(key, msg, reverse){
   } else {
     ps = nonZero(k - mLen - 3);
   }
-  return new bn(Buffer.concat([new Buffer([0, reverse?1:2]), ps, new Buffer([0]), msg], k));
+  return new bn(Buffer.concat([Buffer.from([0, reverse?1:2]), ps, Buffer.alloc(1), msg], k));
 }
 function nonZero(len, crypto) {
-  var out = new Buffer(len);
+  var out = Buffer.allocUnsafe(len);
   var i = 0;
   var cache = randomBytes(len*2);
   var cur = 0;
