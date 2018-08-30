@@ -3,7 +3,8 @@ var Buffer = require('safe-buffer').Buffer
 
 module.exports = function (seed, len) {
   var t = Buffer.alloc(0)
-  var i = 0; var c
+  var i = 0
+  var c
   while (t.length < len) {
     c = i2ops(i++)
     t = Buffer.concat([t, createHash('sha1').update(seed).update(c).digest()])
