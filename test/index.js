@@ -47,16 +47,18 @@ function _testIt (keys, message, t) {
   var pub = keys.public
   var priv = keys.private
   t.test(message.toString(), function (t) {
-    t.plan(8)
+    t.plan(10)
 
     var myEnc = myCrypto.publicEncrypt(pub, message)
     var nodeEnc = nodeCrypto.publicEncrypt(pub, message)
+    t.equals(myEnc.length, nodeEnc.length, 'my public encrypted length node public encrypted length')
     t.equals(myCrypto.privateDecrypt(priv, myEnc).toString('hex'), message.toString('hex'), 'my decrypter my message')
     t.equals(myCrypto.privateDecrypt(priv, nodeEnc).toString('hex'), message.toString('hex'), 'my decrypter node\'s message')
     t.equals(nodeCrypto.privateDecrypt(priv, myEnc).toString('hex'), message.toString('hex'), 'node decrypter my message')
     t.equals(nodeCrypto.privateDecrypt(priv, nodeEnc).toString('hex'), message.toString('hex'), 'node decrypter node\'s message')
     myEnc = myCrypto.privateEncrypt(priv, message)
     nodeEnc = nodeCrypto.privateEncrypt(priv, message)
+    t.equals(myEnc.length, nodeEnc.length, 'my public private length node private encrypted length')
     t.equals(myCrypto.publicDecrypt(pub, myEnc).toString('hex'), message.toString('hex'), 'reverse methods my decrypter my message')
     t.equals(myCrypto.publicDecrypt(pub, nodeEnc).toString('hex'), message.toString('hex'), 'reverse methods my decrypter node\'s message')
     t.equals(nodeCrypto.publicDecrypt(pub, myEnc).toString('hex'), message.toString('hex'), 'reverse methods node decrypter my message')

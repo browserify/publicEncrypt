@@ -6,7 +6,7 @@ function withPublic (paddedMsg, key) {
     .toRed(BN.mont(key.modulus))
     .redPow(new BN(key.publicExponent))
     .fromRed()
-    .toArray())
+    .toArray('be', key.modulus.byteLength()))
 }
 
 module.exports = withPublic
