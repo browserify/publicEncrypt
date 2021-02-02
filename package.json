@@ -30,7 +30,7 @@
     "safe-buffer": "^5.2.1"
   },
   "devDependencies": {
-    "standard": "^16.0.3",
+    "standard": "^12.0.1",
     "tap-spec": "^5.0.0",
     "tape": "^5.1.1"
   }
